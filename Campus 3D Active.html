@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Campus UDD · 3D</title>
+
+<!-- Tailwind (Play CDN) for the overlay UI -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  * { box-sizing: border-box; }
+  html, body, #root { margin:0; height:100%; width:100%; }
+  body {
+    font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+    background:#cfd8da; overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  canvas { display:block; touch-action:none; }
+  #boot {
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:#33425c; font-size:14px; letter-spacing:.02em; z-index:0;
+  }
+  .spin { width:22px;height:22px;border-radius:50%;border:2.5px solid #c3ccd6;border-top-color:#1F6FD6;animation:sp .8s linear infinite;margin-right:10px }
+  @keyframes sp { to { transform:rotate(360deg) } }
+</style>
+
+<!-- Pin React / Three / R3F / drei as singletons (esm.sh externals dedupe them) -->
+<!-- React / ReactDOM as reliable UMD globals — pinned to 18.2.0 to match fiber@8.15.19's bundled reconciler -->
+<script src="https://unpkg.com/react@18.2.0/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js" crossorigin="anonymous"></script>
+
+<!-- Map react/react-dom to data: shims over the UMD globals; three/fiber/drei from esm.sh, all sharing one React instance -->
+<script type="importmap">
+{
+  "imports": {
+    "react": "data:text/javascript,const R=window.React;const _ce=R.createElement;R.createElement=function(){var a=arguments;if(a[1]&&(a[1].__source!==undefined||a[1].__self!==undefined)){a=[].slice.call(a);var p=Object.assign({},a[1]);delete p.__source;delete p.__self;a[1]=p;}return _ce.apply(R,a);};export default R;export const version=R.version,Children=R.Children,Component=R.Component,PureComponent=R.PureComponent,Fragment=R.Fragment,StrictMode=R.StrictMode,Profiler=R.Profiler,Suspense=R.Suspense,cloneElement=R.cloneElement,createContext=R.createContext,createElement=R.createElement,createRef=R.createRef,forwardRef=R.forwardRef,isValidElement=R.isValidElement,lazy=R.lazy,memo=R.memo,startTransition=R.startTransition,useCallback=R.useCallback,useContext=R.useContext,useDebugValue=R.useDebugValue,useDeferredValue=R.useDeferredValue,useEffect=R.useEffect,useId=R.useId,useImperativeHandle=R.useImperativeHandle,useInsertionEffect=R.useInsertionEffect,useLayoutEffect=R.useLayoutEffect,useMemo=R.useMemo,useReducer=R.useReducer,useRef=R.useRef,useState=R.useState,useSyncExternalStore=R.useSyncExternalStore,useTransition=R.useTransition,__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=R.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;",
+    "react-dom": "data:text/javascript,const D=window.ReactDOM;export default D;export const createPortal=D.createPortal,flushSync=D.flushSync,unstable_batchedUpdates=D.unstable_batchedUpdates,render=D.render,unmountComponentAtNode=D.unmountComponentAtNode,findDOMNode=D.findDOMNode,createRoot=D.createRoot,hydrateRoot=D.hydrateRoot,version=D.version,__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=D.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;",
+    "react-dom/client": "data:text/javascript,const D=window.ReactDOM;export const createRoot=D.createRoot,hydrateRoot=D.hydrateRoot;export default {createRoot:D.createRoot,hydrateRoot:D.hydrateRoot};",
+    "react/jsx-runtime": "data:text/javascript,const R=window.React;const c=(t,p,k)=>R.createElement(t,k===undefined?p:Object.assign({},p,{key:k}));export const Fragment=R.Fragment,jsx=c,jsxs=c;",
+    "react/jsx-dev-runtime": "data:text/javascript,const R=window.React;const c=(t,p,k)=>R.createElement(t,k===undefined?p:Object.assign({},p,{key:k}));export const Fragment=R.Fragment,jsxDEV=c;",
+    "three": "https://esm.sh/three@0.160.0",
+    "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.17.10?external=react,react-dom,three",
+    "@react-three/drei": "https://esm.sh/@react-three/drei@9.114.0?external=react,react-dom,three,@react-three/fiber"
+  }
+}
+</script>
+
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<div id="boot"><span class="spin"></span>Cargando campus 3D…</div>
+
+<script>
+  window.__errs = [];
+  window.addEventListener('error', e => {
+    window.__errs.push({ msg: e.message, file: (e.filename||'').slice(-60), line: e.lineno, col: e.colno, stack: (e.error && e.error.stack || '').split('\n').slice(0,8) });
+  }, true);
+  window.addEventListener('unhandledrejection', e => {
+    window.__errs.push({ reject: (e.reason && (e.reason.stack || e.reason.message)) || String(e.reason) });
+  });
+</script>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0A2A66"/>
+    <polygon points="50,26 74,40 50,54 26,40" fill="#A7C97E"/>
+    <polygon points="26,40 50,54 50,70 26,56" fill="#7FA756"/>
+    <polygon points="74,40 50,54 50,70 74,56" fill="#6E5A43"/>
+    <rect x="44" y="30" width="12" height="12" fill="#C9744E"/>
+    <circle cx="50" cy="34" r="4.5" fill="#1F6FD6" stroke="#fff" stroke-width="2"/>
+  </svg>
+</template>
+
+<script type="text/babel" data-type="module" data-plugins="transform-react-jsx">
+import React, { useRef, useState, useMemo, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import * as THREE from 'three';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { OrbitControls, PerspectiveCamera, OrthographicCamera, Html } from '@react-three/drei';
+
+/* ───────────────────────── palette ───────────────────────── */
+const PAL = {
+  navy:'#0A2A66', blue:'#1F6FD6', ink:'#15233B', sub:'#5C6B82',
+  grassTop:'#A7C97E', grassMid:'#9BC06F', grassLow:'#86AE5C',
+  earth:'#7E6A4F', earthDark:'#6A5841', path:'#E7E0CF',
+};
+
+/* ───────────────────────── campus model ─────────────────────────
+   World: X right, Z toward viewer (+Z front / lower terrace), Y up.
+   The hill steps UP as it goes back (−Z).                         */
+const TERRACES = [
+  { id:'low', top:0.0, bottom:-1.6, x:[-8.5,8.5], z:[1.0,7.6],  color:PAL.grassLow },
+  { id:'mid', top:1.4, bottom:-0.2, x:[-8.0,8.0], z:[-3.2,1.2], color:PAL.grassMid },
+  { id:'top', top:2.8, bottom:1.2,  x:[-7.5,7.5], z:[-7.6,-3.0], color:PAL.grassTop },
+];
+
+const BUILDINGS = [
+  { id:'bib', name:'Biblioteca',           short:'Biblioteca', cat:'📖',
+    x:-3.6, z:4.2, baseY:0.0, size:[3.0,2.4,3.0], color:'#D9B98C', roof:'#B89B6E', floors:4 },
+  { id:'cas', name:'Casino Central',       short:'Casino',     cat:'🍽️',
+    x:3.6,  z:4.4, baseY:0.0, size:[2.6,1.8,2.2], color:'#5E9E97', roof:'#3E726C', floors:2 },
+  { id:'dis', name:'Edificio Diseño',      short:'Diseño',     cat:'🎓',
+    x:3.0,  z:-1.0, baseY:1.4, size:[3.2,3.0,2.4], color:'#C9744E', roof:'#9B4F30', floors:4, dest:true },
+  { id:'med', name:'Facultad de Medicina', short:'Medicina',   cat:'🩺',
+    x:-3.4, z:-5.2, baseY:2.8, size:[3.0,3.2,2.6], color:'#E2E6EA', roof:'#C2C8CF', floors:4 },
+];
+const BY_ID = Object.fromEntries(BUILDINGS.map(b => [b.id, b]));
+const centerOf = (id) => { const b = BY_ID[id]; return [b.x, b.baseY + 0.2, b.z]; };
+
+const FRIENDS = [
+  { id:'f1', at:'cas', name:'Benja', initials:'B', color:'#E0533D' },
+  { id:'f2', at:'bib', name:'Caro',  initials:'C', color:'#7A4FD6' },
+  { id:'f3', at:'dis', name:'Tomás', initials:'T', color:'#1F9D72' },
+];
+const EVENTS = [
+  { id:'e1', at:'cas', emoji:'🎮', label:'Torneo LoL', when:'Ahora' },
+  { id:'e2', at:'dis', emoji:'📚', label:'Grupo de estudio', when:'15:00' },
+];
+
+/* simple connector paths (thin strips on the terraces) */
+const PATHS = [
+  { y:0.02,  pts:[[0,6.6],[1.4,4.6],[3.2,3.4]] },
+  { y:0.02,  pts:[[0,6.6],[-2.0,5.0],[-3.4,3.8]] },
+];
+
+/* ───────────────────────── helpers ───────────────────────── */
+const easeInOut = (t) => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
+const smooth = (a, dt) => 1 - Math.pow(a, dt); // framerate-independent factor
+
+/* ───────────────────────── terrain ───────────────────────── */
+function Terrace({ t }) {
+  const w = t.x[1]-t.x[0], d = t.z[1]-t.z[0], h = t.top-t.bottom;
+  const cx = (t.x[0]+t.x[1])/2, cz = (t.z[0]+t.z[1])/2, cy = (t.top+t.bottom)/2;
+  // per-face materials: [+X,-X,+Y(top),-Y,+Z,-Z]
+  return (
+    <mesh position={[cx,cy,cz]} receiveShadow castShadow>
+      <boxGeometry args={[w,h,d]} />
+      <meshStandardMaterial attach="material-0" color={PAL.earth}    roughness={1} />
+      <meshStandardMaterial attach="material-1" color={PAL.earth}    roughness={1} />
+      <meshStandardMaterial attach="material-2" color={t.color}      roughness={0.95} />
+      <meshStandardMaterial attach="material-3" color={PAL.earthDark} roughness={1} />
+      <meshStandardMaterial attach="material-4" color={PAL.earthDark} roughness={1} />
+      <meshStandardMaterial attach="material-5" color={PAL.earth}    roughness={1} />
+    </mesh>
+  );
+}
+
+function Paths() {
+  return PATHS.map((p, i) => (
+    <group key={i}>
+      {p.pts.slice(1).map(([x,z], j) => {
+        const [px,pz] = p.pts[j];
+        const dx = x-px, dz = z-pz, len = Math.hypot(dx,dz);
+        const ang = Math.atan2(dx,dz);
+        return (
+          <mesh key={j} position={[(x+px)/2, p.y, (z+pz)/2]} rotation={[0,ang,0]} receiveShadow>
+            <boxGeometry args={[0.5, 0.04, len]} />
+            <meshStandardMaterial color={PAL.path} roughness={1} />
+          </mesh>
+        );
+      })}
+    </group>
+  ));
+}
+
+/* ───────────────────────── interior 2D floor plan ───────────────────────── */
+function Interior({ b }) {
+  const g = useRef();
+  const p = useRef(0);
+  useFrame((_, dt) => {
+    p.current += (1 - p.current) * smooth(0.001, dt);
+    if (!g.current) return;
+    g.current.traverse(o => {
+      if (o.material && o.userData.fade) { o.material.transparent = true; o.material.opacity = (o.userData.base ?? 1) * p.current; }
+    });
+  });
+  const w = b.size[0], d = b.size[2];
+  const wall = (key, pos, size, color='#c2cad6') =>
+    <mesh key={key} position={pos} userData={{ fade:true, base:1 }}>
+      <boxGeometry args={size} /><meshStandardMaterial color={color} roughness={0.9} />
+    </mesh>;
+  const quad = [[-w/4, -d/4],[w/4,-d/4],[-w/4,d/4],[w/4,d/4]];
+  const labels = b.id === 'dis' ? ['301','302','Taller','Lab'] : ['A','B','C','D'];
+  const destIdx = b.dest ? 0 : -1;
+
+  return (
+    <group ref={g} position={[0,0,0]}>
+      {/* floor */}
+      <mesh position={[0,0.04,0]} rotation={[-Math.PI/2,0,0]} userData={{ fade:true, base:1 }}>
+        <planeGeometry args={[w*0.94, d*0.94]} />
+        <meshStandardMaterial color="#eef1f6" roughness={1} />
+      </mesh>
+      {/* dest room highlight */}
+      {destIdx >= 0 && (
+        <mesh position={[quad[destIdx][0], 0.05, quad[destIdx][1]]} rotation={[-Math.PI/2,0,0]} userData={{ fade:true, base:0.92 }}>
+          <planeGeometry args={[w*0.42, d*0.42]} />
+          <meshStandardMaterial color={PAL.blue} roughness={1} />
+        </mesh>
+      )}
+      {/* perimeter walls */}
+      {wall('n', [0,0.3,-d/2*0.94], [w*0.96,0.5,0.08])}
+      {wall('s', [0,0.3, d/2*0.94], [w*0.96,0.5,0.08])}
+      {wall('e', [ w/2*0.94,0.3,0], [0.08,0.5,d*0.96])}
+      {wall('w', [-w/2*0.94,0.3,0], [0.08,0.5,d*0.96])}
+      {/* interior dividers → 4 rooms */}
+      {wall('dx', [0,0.27,0], [0.07,0.46,d*0.84])}
+      {wall('dz', [0,0.27,0], [w*0.84,0.46,0.07])}
+      {/* destination pin */}
+      {destIdx >= 0 && (
+        <group position={[quad[destIdx][0], 0, quad[destIdx][1]]}>
+          <mesh position={[0,0.42,0]} userData={{ fade:true, base:1 }}>
+            <cylinderGeometry args={[0.03,0.03,0.84,8]} /><meshStandardMaterial color={PAL.navy} />
+          </mesh>
+          <mesh position={[0,0.92,0]} userData={{ fade:true, base:1 }}>
+            <sphereGeometry args={[0.16,20,20]} />
+            <meshStandardMaterial color={PAL.blue} emissive={PAL.blue} emissiveIntensity={0.5} />
+          </mesh>
+        </group>
+      )}
+      {/* room labels */}
+      {quad.map(([x,z], i) => (
+        <Html key={i} position={[x, 0.12, z]} center wrapperClass="pointer-events-none">
+          <div className="text-[10px] font-bold tracking-wide select-none"
+               style={{ color: i===destIdx ? '#ffffff' : '#64748b' }}>{labels[i]}</div>
+        </Html>
+      ))}
+    </group>
+  );
+}
+
+/* ───────────────────────── building ───────────────────────── */
+function Building({ b, selected, anySelected, onSelect }) {
+  const shell = useRef();
+  const roof = useRef();
+  const prog = useRef(0);   // 0 = closed roof, 1 = opened (plan)
+  const dim = useRef(1);    // shell opacity
+  const [hover, setHover] = useState(false);
+
+  useFrame((_, dt) => {
+    const tp = selected ? 1 : 0;
+    prog.current += (tp - prog.current) * smooth(0.0016, dt);
+    const p = prog.current;
+    if (roof.current) {
+      roof.current.position.y = b.size[1] + 0.07 + p * 2.4;
+      const o = Math.max(0, 1 - p * 1.5);
+      roof.current.material.opacity = o;
+      roof.current.visible = o > 0.02;
+    }
+    const target = selected ? 0.16 : (anySelected ? 0.42 : 1);
+    dim.current += (target - dim.current) * smooth(0.0016, dt);
+    if (shell.current) {
+      const m = shell.current.material;
+      m.opacity = dim.current;
+      m.depthWrite = dim.current > 0.92;
+      m.emissiveIntensity = hover && !anySelected ? 0.18 : 0.0;
+    }
+  });
+
+  return (
+    <group position={[b.x, b.baseY, b.z]}>
+      {/* exterior shell */}
+      <mesh ref={shell} position={[0, b.size[1]/2, 0]} castShadow receiveShadow
+            onClick={(e) => { e.stopPropagation(); onSelect(b.id); }}
+            onPointerOver={(e) => { e.stopPropagation(); setHover(true); document.body.style.cursor='pointer'; }}
+            onPointerOut={() => { setHover(false); document.body.style.cursor='default'; }}>
+        <boxGeometry args={b.size} />
+        <meshStandardMaterial color={b.color} emissive={b.color} emissiveIntensity={0} transparent opacity={1} roughness={0.82} metalness={0} />
+      </mesh>
+      {/* roof cap — lifts & fades to reveal the plan */}
+      <mesh ref={roof} position={[0, b.size[1]+0.07, 0]} castShadow>
+        <boxGeometry args={[b.size[0]+0.22, 0.14, b.size[2]+0.22]} />
+        <meshStandardMaterial color={b.roof} transparent opacity={1} roughness={0.9} />
+      </mesh>
+      {/* interior plan (only while selected) */}
+      {selected && <Interior b={b} />}
+      {/* floating name label */}
+      <Html position={[0, b.size[1] + 0.55, 0]} center wrapperClass="pointer-events-none">
+        <div className="px-2 py-[3px] rounded-full bg-white/92 text-[11px] font-bold text-slate-700 shadow-sm whitespace-nowrap select-none"
+             style={{ opacity: selected ? 0 : (anySelected ? 0.25 : 1), transition:'opacity .3s' }}>
+          {b.short}
+        </div>
+      </Html>
+    </group>
+  );
+}
+
+/* ───────────────────────── floating markers ───────────────────────── */
+function FriendMarker({ f, faded, onSelect }) {
+  const b = BY_ID[f.at];
+  const g = useRef();
+  const ph = useMemo(() => Math.random()*6.28, []);
+  const baseY = b.baseY + b.size[1] + 0.95;
+  useFrame(({ clock }) => { if (g.current) g.current.position.y = baseY + Math.sin(clock.elapsedTime*1.6 + ph)*0.12; });
+  return (
+    <group ref={g} position={[b.x - 0.7, baseY, b.z - 0.2]}
+           visible={!faded}>
+      <mesh castShadow onClick={(e)=>{ e.stopPropagation(); onSelect(b.id); }}
+            onPointerOver={(e)=>{e.stopPropagation(); document.body.style.cursor='pointer';}}
+            onPointerOut={()=>{document.body.style.cursor='default';}}>
+        <sphereGeometry args={[0.26,28,28]} />
+        <meshStandardMaterial color={f.color} emissive={f.color} emissiveIntensity={0.3} roughness={0.5} />
+      </mesh>
+      <Html center position={[0,0.0,0]} wrapperClass="pointer-events-none">
+        <div className="w-5 h-5 -mt-px rounded-full grid place-items-center text-[10px] font-extrabold text-white select-none"
+             style={{ background:f.color, boxShadow:'0 1px 4px rgba(10,30,60,.35)' }}>{f.initials}</div>
+      </Html>
+    </group>
+  );
+}
+
+function EventMarker({ ev, faded, onSelect }) {
+  const b = BY_ID[ev.at];
+  const g = useRef();
+  const ph = useMemo(() => Math.random()*6.28, []);
+  const baseY = b.baseY + b.size[1] + 1.15;
+  useFrame(({ clock }) => { if (g.current) g.current.position.y = baseY + Math.sin(clock.elapsedTime*1.4 + ph)*0.14; });
+  return (
+    <group ref={g} position={[b.x + 0.7, baseY, b.z - 0.2]} visible={!faded}>
+      <mesh castShadow onClick={(e)=>{ e.stopPropagation(); onSelect(b.id); }}
+            onPointerOver={(e)=>{e.stopPropagation(); document.body.style.cursor='pointer';}}
+            onPointerOut={()=>{document.body.style.cursor='default';}}>
+        <sphereGeometry args={[0.30,28,28]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.4} />
+      </mesh>
+      <Html center wrapperClass="pointer-events-none">
+        <div className="text-[15px] -mt-px select-none">{ev.emoji}</div>
+      </Html>
+    </group>
+  );
+}
+
+/* ───────────────────────── camera rig ─────────────────────────
+   Free OrbitControls in perspective. On select: fly the perspective
+   camera straight overhead, then hand off to an OrthographicCamera
+   (true top-down 2D plan). Reverse on deselect.                    */
+const HOME_POS = new THREE.Vector3(11, 9.5, 12.5);
+const HOME_TARGET = new THREE.Vector3(0, 0.6, 0);
+
+function CameraRig({ selected }) {
+  const persp = useRef();
+  const ortho = useRef();
+  const orbit = useRef();
+  const { size } = useThree();
+  const [planActive, setPlanActive] = useState(false);
+
+  const S = useRef({
+    p: 0,                                  // 0 orbit → 1 plan
+    start: HOME_POS.clone(),               // fly start (captured from live orbit)
+    startT: HOME_TARGET.clone(),
+    focus: new THREE.Vector3(0, 0.6, 0),
+    prev: null,
+    plan: false,
+  });
+  const tmpPos = useMemo(()=>new THREE.Vector3(),[]);
+  const tmpTar = useMemo(()=>new THREE.Vector3(),[]);
+  const tmpFocus = useMemo(()=>new THREE.Vector3(),[]);
+
+  useFrame((_, dt) => {
+    const s = S.current, c = persp.current, o = ortho.current, ctl = orbit.current;
+    if (!c || !o) return;
+
+    // rising / falling edge on selection
+    if (selected !== s.prev) {
+      if (selected) {                       // entering a building
+        s.start.copy(c.position);           // start the fly from wherever orbit left us
+        if (ctl) s.startT.copy(ctl.target);
+        s.focus.set(...centerOf(selected));
+      }
+      s.prev = selected;
+    }
+    if (selected) s.focus.lerp(tmpFocus.set(...centerOf(selected)), smooth(0.05, dt));
+
+    // progress toward plan / orbit
+    const targetP = selected ? 1 : 0;
+    s.p += (targetP - s.p) * smooth(0.12, dt);
+    if (Math.abs(targetP - s.p) < 0.0015) s.p = targetP;
+    const e = easeInOut(s.p);
+
+    // overhead pose for the focused building
+    const topPos = tmpPos.set(s.focus.x, s.focus.y + 13, s.focus.z + 0.01);
+    const topTar = s.focus;
+
+    const orbiting = !selected && s.p < 0.004;
+    if (ctl) ctl.enabled = orbiting;
+
+    if (orbiting) {
+      // let OrbitControls drive; remember pose for the next fly
+      s.start.copy(c.position);
+      if (ctl) s.startT.copy(ctl.target);
+    } else {
+      // drive the perspective camera along the fly
+      c.position.copy(tmpTar.copy(s.start).lerp(topPos, e));
+      c.lookAt(tmpTar.copy(s.startT).lerp(topTar, e));
+    }
+
+    // keep ortho parked overhead, framed to the building
+    o.position.copy(topPos);
+    o.up.set(0, 0, -1);
+    o.lookAt(topTar);
+    const minDim = Math.min(size.width, size.height);
+    const b = selected ? BY_ID[selected] : null;
+    const fs = b ? Math.max(b.size[0], b.size[2]) : 4;
+    o.zoom = minDim / (fs * 1.95);
+    o.updateProjectionMatrix();
+
+    const planNow = s.p > 0.985;
+    if (planNow !== s.plan) { s.plan = planNow; setPlanActive(planNow); }
+  });
+
+  return (
+    <>
+      <PerspectiveCamera ref={persp} makeDefault={!planActive} fov={42} near={0.1} far={400} position={[11,9.5,12.5]} />
+      <OrthographicCamera ref={ortho} makeDefault={planActive} near={-60} far={400} />
+      <OrbitControls ref={orbit} enableDamping dampingFactor={0.08}
+                     target={[0,0.6,0]} minDistance={7} maxDistance={30}
+                     maxPolarAngle={1.36} enablePan={false} />
+    </>
+  );
+}
+
+/* ───────────────────────── scene ───────────────────────── */
+function Scene({ selected, onSelect, layers }) {
+  const anySelected = !!selected;
+  return (
+    <>
+      <color attach="background" args={['#d4dde0']} />
+      <fog attach="fog" args={['#d4dde0', 28, 64]} />
+
+      <hemisphereLight args={['#ffffff', '#b7c1ac', 0.55]} />
+      <ambientLight intensity={0.32} />
+      <directionalLight
+        position={[10, 17, 8]} intensity={1.2} castShadow
+        shadow-mapSize-width={2048} shadow-mapSize-height={2048}
+        shadow-camera-near={1} shadow-camera-far={60}
+        shadow-camera-left={-20} shadow-camera-right={20}
+        shadow-camera-top={20} shadow-camera-bottom={-20}
+        shadow-bias={-0.0004} />
+
+      {true && TERRACES.map(t => <Terrace key={t.id} t={t} />)}
+      {true && <Paths />}
+
+      {true && BUILDINGS.map(b => (
+        <Building key={b.id} b={b}
+                  selected={selected === b.id}
+                  anySelected={anySelected}
+                  onSelect={onSelect} />
+      ))}
+
+      {true && layers.friends && FRIENDS.map(f => (
+        <FriendMarker key={f.id} f={f} faded={anySelected} onSelect={onSelect} />
+      ))}
+      {true && layers.events && EVENTS.map(ev => (
+        <EventMarker key={ev.id} ev={ev} faded={anySelected} onSelect={onSelect} />
+      ))}
+
+      {true && <CameraRig selected={selected} />}
+    </>
+  );
+}
+
+/* ───────────────────────── overlay UI (Tailwind) ───────────────────────── */
+function LayerBtn({ active, glyph, onClick, title }) {
+  return (
+    <button title={title} onClick={onClick}
+      className={"w-11 h-11 rounded-xl grid place-items-center text-lg shadow-lg transition active:scale-95 " +
+        (active ? "bg-[#0A2A66] text-white" : "bg-white/95 text-slate-400")}>
+      {glyph}
+    </button>
+  );
+}
+
+function Sheet({ building, onClose }) {
+  if (!building) return null;
+  const friends = FRIENDS.filter(f => f.at === building.id);
+  const events  = EVENTS.filter(e => e.at === building.id);
+  return (
+    <div className="absolute inset-x-0 bottom-0 z-20 px-3 pb-3 pointer-events-none">
+      <div className="mx-auto max-w-md bg-white rounded-3xl shadow-[0_-6px_30px_rgba(10,42,102,.18)] p-5 pointer-events-auto"
+           style={{ animation:'sheetUp .28s cubic-bezier(.2,.7,.2,1)' }}>
+        <div className="flex items-start gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="text-[22px] leading-tight font-extrabold text-[#15233B]">{building.name}</div>
+            <div className="text-[13px] text-slate-500 mt-0.5">
+              <span className="text-emerald-600 font-bold">Abierto</span> · {building.floors} pisos · 4 min a pie
+            </div>
+          </div>
+          <button onClick={onClose}
+            className="w-9 h-9 shrink-0 rounded-full bg-slate-100 text-slate-500 grid place-items-center text-base active:scale-95">✕</button>
+        </div>
+
+        <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#E8F0FB] text-[#0A2A66] text-[12.5px] font-bold px-3 py-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#1F6FD6]"></span> Vista planta 2D · ortográfica
+        </div>
+
+        {(friends.length > 0 || events.length > 0) && (
+          <div className="mt-4 space-y-1.5">
+            {friends.map(f => (
+              <div key={f.id} className="flex items-center gap-3 py-1.5">
+                <span className="w-8 h-8 rounded-full grid place-items-center text-white text-[13px] font-extrabold"
+                      style={{ background:f.color }}>{f.initials}</span>
+                <div className="flex-1">
+                  <div className="text-[14px] font-semibold text-[#15233B]">{f.name} está aquí</div>
+                  <div className="text-[12px] text-slate-400">Compartiendo ubicación · hace 2 min</div>
+                </div>
+              </div>
+            ))}
+            {events.map(e => (
+              <div key={e.id} className="flex items-center gap-3 py-1.5">
+                <span className="w-8 h-8 rounded-xl grid place-items-center text-[17px] bg-[#FFF1EC]">{e.emoji}</span>
+                <div className="flex-1">
+                  <div className="text-[14px] font-semibold text-[#15233B]">{e.label}</div>
+                  <div className="text-[12px] text-slate-400">{e.when}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button onClick={onClose}
+          className="mt-4 w-full h-12 rounded-2xl bg-[#0A2A66] text-white font-bold text-[15px] active:scale-[.99]">
+          ‹ Volver a la vista 3D
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function HomeSheet({ onPick }) {
+  return (
+    <div className="absolute inset-x-0 bottom-0 z-20 px-3 pb-3 pointer-events-none">
+      <div className="mx-auto max-w-md bg-white rounded-3xl shadow-[0_-6px_30px_rgba(10,42,102,.18)] p-4 pointer-events-auto">
+        <div className="w-10 h-1.5 rounded-full bg-slate-200 mx-auto mb-3"></div>
+        <div className="px-1">
+          <div className="text-[11px] font-extrabold tracking-wider text-[#0A2A66] uppercase">Campus UDD · maqueta 3D</div>
+          <div className="text-[13px] text-slate-500 mt-0.5">Toca un edificio para abrir su planta 2D</div>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {BUILDINGS.map(b => (
+            <button key={b.id} onClick={() => onPick(b.id)}
+              className="flex items-center gap-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 transition px-3 py-2.5 text-left active:scale-[.98]">
+              <span className="w-9 h-9 rounded-xl grid place-items-center text-lg shrink-0"
+                    style={{ background:'#E8F0FB' }}>{b.cat}</span>
+              <div className="min-w-0">
+                <div className="text-[13.5px] font-bold text-[#15233B] truncate">{b.short}</div>
+                <div className="text-[11.5px] text-slate-400">{b.floors} pisos</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── app ───────────────────────── */
+function App() {
+  const [selected, setSelected] = useState(null);
+  const [layers, setLayers] = useState({ friends:true, events:true });
+  const building = selected ? BY_ID[selected] : null;
+
+  useEffect(() => {
+    const el = document.getElementById('boot'); if (el) el.style.display='none';
+    const fire = () => window.dispatchEvent(new Event('resize'));
+    const ts = [80, 400].map(ms => setTimeout(fire, ms));
+    return () => ts.forEach(clearTimeout);
+  }, []);
+
+  return (
+    <div className="relative w-full h-full overflow-hidden">
+      <Canvas shadows dpr={[1,1.5]} gl={{ antialias:true, powerPreference:'high-performance' }}
+              onPointerMissed={() => setSelected(null)}>
+        <Scene selected={selected} onSelect={setSelected} layers={layers} />
+      </Canvas>
+
+      {/* top bar */}
+      <div className="absolute top-0 inset-x-0 z-20 p-3 flex items-start justify-between pointer-events-none">
+        <div className="pointer-events-auto flex items-center gap-2 bg-white/95 backdrop-blur rounded-2xl shadow-lg pl-2.5 pr-3.5 py-2">
+          <span className="w-7 h-7 rounded-lg grid place-items-center text-white text-sm font-black" style={{ background:'#0A2A66' }}>U</span>
+          <div className="leading-tight">
+            <div className="text-[13px] font-extrabold text-[#15233B]">Campus UDD</div>
+            <div className="text-[10.5px] text-slate-400 -mt-0.5">{building ? 'Planta 2D · ortográfica' : 'Vista 3D · perspectiva'}</div>
+          </div>
+        </div>
+
+        <div className="pointer-events-auto flex flex-col gap-2">
+          <LayerBtn active={layers.friends} glyph="👥" title="Amigos"
+                    onClick={() => setLayers(s => ({ ...s, friends:!s.friends }))} />
+          <LayerBtn active={layers.events} glyph="📣" title="Eventos"
+                    onClick={() => setLayers(s => ({ ...s, events:!s.events }))} />
+        </div>
+      </div>
+
+      {/* hint */}
+      {!building && (
+        <div className="absolute left-3 bottom-3 z-10 pointer-events-none">
+          <div className="bg-black/35 text-white/90 text-[11px] font-medium rounded-full px-3 py-1.5 backdrop-blur-sm hidden sm:block">
+            Arrastra para rotar · rueda para zoom
+          </div>
+        </div>
+      )}
+
+      {building ? <Sheet building={building} onClose={() => setSelected(null)} />
+                : <HomeSheet onPick={setSelected} />}
+
+      <style>{`@keyframes sheetUp{from{transform:translateY(16px);opacity:.4}to{transform:none;opacity:1}}`}</style>
+    </div>
+  );
+}
+
+class ErrBoundary extends React.Component {
+  constructor(p){ super(p); this.state={e:null}; }
+  static getDerivedStateFromError(e){ return { e }; }
+  componentDidCatch(e, info){ window.__appErr = { msg: e.message, stack: (e.stack||'').split('\n').slice(0,4), comp: (info.componentStack||'').split('\n').slice(0,14) }; }
+  render(){ return this.state.e ? null : this.props.children; }
+}
+
+createRoot(document.getElementById('root')).render(<ErrBoundary><App /></ErrBoundary>);
+</script>
+</body>
+</html>

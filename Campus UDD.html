@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Campus UDD · Mapa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Manrope:wght@400;500;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet" />
+<!-- Tailwind Play CDN for R3F HTML overlays -->
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root { --ui:'Roboto'; --display:'Plus Jakarta Sans'; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; }
+  body {
+    min-height:100%;
+    background: radial-gradient(120% 120% at 50% 0%, #2C3E63 0%, #1A2540 60%, #131B30 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Roboto', system-ui, sans-serif;
+    padding:24px;
+  }
+  #root { display:flex; align-items:center; justify-content:center; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0A2A66"/>
+    <polygon points="50,28 70,40 50,52 30,40" fill="#A7C97E"/>
+    <polygon points="30,40 50,52 50,66 30,54" fill="#7FA756"/>
+    <polygon points="70,40 50,52 50,66 70,54" fill="#6E5A43"/>
+    <circle cx="50" cy="36" r="4.5" fill="#1F6FD6" stroke="#fff" stroke-width="2"/>
+  </svg>
+</template>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "data:text/javascript,const R=window.React;const _ce=R.createElement;R.createElement=function(){var a=arguments;if(a[1]&&(a[1].__source!==undefined||a[1].__self!==undefined)){a=[].slice.call(a);var p=Object.assign({},a[1]);delete p.__source;delete p.__self;a[1]=p;}return _ce.apply(R,a);};export default R;export const version=R.version,Children=R.Children,Component=R.Component,PureComponent=R.PureComponent,Fragment=R.Fragment,StrictMode=R.StrictMode,Profiler=R.Profiler,Suspense=R.Suspense,cloneElement=R.cloneElement,createContext=R.createContext,createElement=R.createElement,createRef=R.createRef,forwardRef=R.forwardRef,isValidElement=R.isValidElement,lazy=R.lazy,memo=R.memo,startTransition=R.startTransition,useCallback=R.useCallback,useContext=R.useContext,useDebugValue=R.useDebugValue,useDeferredValue=R.useDeferredValue,useEffect=R.useEffect,useId=R.useId,useImperativeHandle=R.useImperativeHandle,useInsertionEffect=R.useInsertionEffect,useLayoutEffect=R.useLayoutEffect,useMemo=R.useMemo,useReducer=R.useReducer,useRef=R.useRef,useState=R.useState,useSyncExternalStore=R.useSyncExternalStore,useTransition=R.useTransition,__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=R.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;",
+    "react-dom": "data:text/javascript,const D=window.ReactDOM;export default D;export const createPortal=D.createPortal,flushSync=D.flushSync,unstable_batchedUpdates=D.unstable_batchedUpdates,render=D.render,unmountComponentAtNode=D.unmountComponentAtNode,findDOMNode=D.findDOMNode,createRoot=D.createRoot,hydrateRoot=D.hydrateRoot,version=D.version,__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=D.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;",
+    "react-dom/client": "data:text/javascript,const D=window.ReactDOM;export const createRoot=D.createRoot,hydrateRoot=D.hydrateRoot;export default {createRoot:D.createRoot,hydrateRoot:D.hydrateRoot};",
+    "react/jsx-runtime": "data:text/javascript,const R=window.React;const c=(t,p,k)=>R.createElement(t,k===undefined?p:Object.assign({},p,{key:k}));export const Fragment=R.Fragment,jsx=c,jsxs=c;",
+    "react/jsx-dev-runtime": "data:text/javascript,const R=window.React;const c=(t,p,k)=>R.createElement(t,k===undefined?p:Object.assign({},p,{key:k}));export const Fragment=R.Fragment,jsxDEV=c;",
+    "three": "https://esm.sh/three@0.160.0",
+    "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.17.10?external=react,react-dom,three",
+    "@react-three/drei": "https://esm.sh/@react-three/drei@9.114.0?external=react,react-dom,three,@react-three/fiber"
+  }
+}
+</script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+  window.TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "palette": [
+      "#0A2A66",
+      "#1F6FD6"
+    ],
+    "font": "DM Sans",
+    "mapStyle": "Plano",
+    "density": "regular",
+    "layers": "friends,events",
+    "viewMode": "3D"
+  }/*EDITMODE-END*/;
+</script>
+
+<script type="text/babel" src="android-frame.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="campus/data.jsx?v=26"></script>
+<script type="text/babel" src="campus/camera.jsx?v=26"></script>
+<script type="text/babel" src="campus/IsoMap.jsx?v=26"></script>
+<script type="text/babel" src="campus/FloorPlan.jsx?v=26"></script>
+<script type="text/babel" src="campus/Sheet.jsx?v=26"></script>
+<script type="text/babel" data-type="module" data-presets="react" src="campus/Campus3D.jsx?v=26"></script>
+<script type="text/babel" src="campus/App.jsx?v=26"></script>
+
+<script type="text/babel">
+  function Root() {
+    return (
+      <AndroidDevice>
+        <div style={{ position:'relative', height:'100%' }}>
+          <CampusApp />
+        </div>
+      </AndroidDevice>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
+</script>
+</body>
+</html>
