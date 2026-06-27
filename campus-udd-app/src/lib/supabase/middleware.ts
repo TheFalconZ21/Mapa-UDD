@@ -37,6 +37,9 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || 
                       request.nextUrl.pathname.startsWith('/register');
 
+  // BYPASS DE PRUEBA: Desactivamos el bloqueo del middleware temporalmente 
+  // para que puedas probar la UI de la app sin tener la Base de Datos conectada.
+  /*
   if (!user && !isAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
@@ -49,6 +52,7 @@ export async function updateSession(request: NextRequest) {
     url.pathname = '/mapa';
     return NextResponse.redirect(url);
   }
+  */
 
   return supabaseResponse;
 }
