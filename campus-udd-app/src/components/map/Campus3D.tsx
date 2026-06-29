@@ -345,9 +345,13 @@ export default function CampusMap3D() {
   return (
     <div 
       style={{ width: '100%', height: '100%', position: 'relative' }} 
-      onClick={() => setSelected(null)}
     >
-      <Canvas shadows dpr={[1, 1.5]} camera={{ position: [18, 25, 35], fov: 38, near: 0.1, far: 500 }}>
+      <Canvas 
+        shadows 
+        dpr={[1, 1.5]} 
+        camera={{ position: [18, 25, 35], fov: 38, near: 0.1, far: 500 }}
+        onPointerMissed={() => setSelected(null)}
+      >
         <color attach="background" args={['#d4dde0']} />
         <fog attach="fog" args={['#d4dde0', 55, 140]} />
 
