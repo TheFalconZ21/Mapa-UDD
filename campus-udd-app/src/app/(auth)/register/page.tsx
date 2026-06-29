@@ -28,54 +28,51 @@ export default function RegisterPage() {
       return;
     }
 
-    const supabase = createClient();
-    
-    // Supabase auth registration
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        }
+    try {
+      const supabase = createClient();
+      if (!supabase) {
+        throw new Error('Database not configured');
       }
-    });
-
-    if (signUpError) {
-      setError(signUpError.message);
-      setLoading(false);
-      return;
-    }
-
-    // Usually email confirmation is required by default in Supabase.
-    // Assuming for MVP it might be disabled or we just show a message.
-    if (data.session) {
-      // Create profile record since we might not have a trigger yet
-      // Or if there is a trigger, it will create it automatically. 
-      // Architecture says trigger `on_profile_created` exists, but we need to insert the profile.
-      // Actually Supabase Auth trigger usually handles inserting into `public.profiles`.
-      // Let's rely on standard practice: we'll insert manually if needed, or if trigger exists, just proceed.
-      // We will insert manually for safety, but check architecture. 
-      // Arch: "Profiles: todos leen, solo el dueño modifica". No trigger mentioned for profile creation from auth.users.
-      // Let's insert the profile manually.
       
-      const { error: profileError } = await supabase.from('profiles').insert([
-        {
-          id: data.user!.id,
-          full_name: fullName,
-          email: email,
+      // Supabase auth registration
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          }
         }
-      ]);
+      });
 
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
+      if (signUpError) {
+        setError(signUpError.message);
+        setLoading(false);
+        return;
       }
 
-      setUser(data.user);
-      router.push('/mapa');
-      router.refresh();
-    } else {
-      setError('Revisa tu correo para confirmar tu cuenta.');
+      if (data.session) {
+        const { error: profileError } = await supabase.from('profiles').insert([
+          {
+            id: data.user!.id,
+            full_name: fullName,
+            email: email,
+          }
+        ]);
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+        }
+
+        setUser(data.user);
+        router.push('/mapa');
+        router.refresh();
+      } else {
+        setError('Revisa tu correo para confirmar tu cuenta.');
+        setLoading(false);
+      }
+    } catch (err) {
+      setError('Error de conexión a BD. Usa el usuario de prueba test@udd.cl / 123456 en la pantalla de Login.');
       setLoading(false);
     }
   };
