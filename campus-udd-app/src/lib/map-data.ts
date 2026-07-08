@@ -140,7 +140,8 @@ export const BUILDINGS: BuildingDef[] = [
     "d": 8.8,
     "h": 15,
     "z": 0,
-    "ry": 0
+    "ry": 0,
+    "floors": 4
   },
   {
     "id": "H",
@@ -425,6 +426,47 @@ export const DIS_FLOORS: Record<number, FloorDef> = {
     { x: 24,  y: 24, w: 120, h: 96,  label: 'Hall', type: 'room', name: 'Hall de Acceso' },
     { x: 150, y: 24, w: 162, h: 96,  label: 'Cafetería', type: 'room' },
     { x: 24,  y: 200, w: 288, h: 120, label: 'Auditorio A1', type: 'room' },
+    { x: 24,  y: 126, w: 288, h: 68,  label: '', type: 'hall', entry: true },
+    { x: 196, y: 132, w: 36,  h: 56,  label: '', type: 'stair' },
+    { x: 238, y: 132, w: 36,  h: 56,  label: '', type: 'lift' }
+  ]}
+};
+
+export const G_FLOORS: Record<number, FloorDef> = {
+  4: { label: 'P4', rooms: [
+    { x: 24,  y: 24, w: 140, h: 92,  label: 'Yoga', type: 'room', name: 'Sala Yoga & Pilates' },
+    { x: 170, y: 24, w: 142, h: 92,  label: 'Dojo', type: 'room', name: 'Sala Artes Marciales' },
+    { x: 24,  y: 200, w: 110, h: 120, label: 'Café Fit', type: 'room', name: 'Nutrición & Snack' },
+    { x: 140, y: 200, w: 172, h: 120, label: 'Terraza G', type: 'room', name: 'Mirador Deportivo' },
+    { x: 24,  y: 122, w: 288, h: 72,  label: '', type: 'hall' },
+    { x: 150, y: 130, w: 40,  h: 56,  label: 'WC', type: 'wc' },
+    { x: 196, y: 130, w: 36,  h: 56,  label: '', type: 'stair' },
+    { x: 238, y: 130, w: 36,  h: 56,  label: '', type: 'lift' }
+  ]},
+  3: { label: 'P3', rooms: [
+    { x: 24,  y: 24, w: 150, h: 92,  label: 'Cardio', type: 'room', name: 'Área Cardiovascular' },
+    { x: 180, y: 24, w: 132, h: 92,  label: 'Crossfit', type: 'room', name: 'Zona Entrenamiento Funcional' },
+    { x: 24,  y: 200, w: 180, h: 120, label: 'Pesas', type: 'room', name: 'Sala de Musculación', dest: true },
+    { x: 210, y: 200, w: 102, h: 120, label: 'Kine G', type: 'room', name: 'Box Rehabilitación' },
+    { x: 24,  y: 122, w: 288, h: 72,  label: '', type: 'hall' },
+    { x: 150, y: 130, w: 40,  h: 56,  label: 'WC', type: 'wc' },
+    { x: 196, y: 130, w: 36,  h: 56,  label: '', type: 'stair' },
+    { x: 238, y: 130, w: 36,  h: 56,  label: '', type: 'lift' }
+  ]},
+  2: { label: 'P2', rooms: [
+    { x: 24,  y: 24, w: 288, h: 96,  label: 'Cancha', type: 'room', name: 'Gimnasio Multiuso Superior' },
+    { x: 24,  y: 200, w: 150, h: 120, label: 'Spinning', type: 'room', name: 'Sala de Ciclismo Indoor' },
+    { x: 180, y: 200, w: 132, h: 120, label: 'Oficinas', type: 'room', name: 'Dirección Deportes' },
+    { x: 24,  y: 126, w: 288, h: 68,  label: '', type: 'hall' },
+    { x: 150, y: 132, w: 40,  h: 56,  label: 'WC', type: 'wc' },
+    { x: 196, y: 132, w: 36,  h: 56,  label: '', type: 'stair' },
+    { x: 238, y: 132, w: 36,  h: 56,  label: '', type: 'lift' }
+  ]},
+  1: { label: 'P1', rooms: [
+    { x: 24,  y: 24, w: 150, h: 96,  label: 'Recepción', type: 'room', name: 'Acceso Principal' },
+    { x: 180, y: 24, w: 132, h: 96,  label: 'Enfermería', type: 'room', name: 'Atención Médica UDD' },
+    { x: 24,  y: 200, w: 138, h: 120, label: 'Camarín D', type: 'room', name: 'Camarines Damas' },
+    { x: 174, y: 200, w: 138, h: 120, label: 'Camarín V', type: 'room', name: 'Camarines Varones' },
     { x: 24,  y: 126, w: 288, h: 68,  label: '', type: 'hall', entry: true },
     { x: 196, y: 132, w: 36,  h: 56,  label: '', type: 'stair' },
     { x: 238, y: 132, w: 36,  h: 56,  label: '', type: 'lift' }

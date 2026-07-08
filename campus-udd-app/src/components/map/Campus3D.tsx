@@ -12,7 +12,8 @@ import {
   PARKING, 
   FRIENDS, 
   EVENTS, 
-  DIS_FLOORS 
+  DIS_FLOORS,
+  G_FLOORS 
 } from '@/lib/map-data';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { pathfinder, get3DPos } from '@/lib/pathfinder';
@@ -43,6 +44,8 @@ function planFor(building: any, floor: number, destRoom: string | null) {
   let basePlan;
   if (building.id === 'H' && DIS_FLOORS[floor]) { // Edificio H es Diseño
     basePlan = DIS_FLOORS[floor];
+  } else if (building.id === 'G' && G_FLOORS[floor]) { // Edificio G es Gimnasio
+    basePlan = G_FLOORS[floor];
   } else {
     basePlan = genFloor(building.id, floor);
   }
@@ -1073,7 +1076,7 @@ export default function CampusMap3D() {
             onSelect={handleBuildingSelect}
             selectedFloor={selectedFloor}
             showInterior={showInterior}
-            destRoom={selected === 'H' ? '301' : null}
+            destRoom={selected === 'H' ? '301' : (selected === 'G' ? 'Pesas' : null)}
             activeFriends={activeFriends}
           />
         ))}
@@ -1247,7 +1250,7 @@ export default function CampusMap3D() {
         <FloorPlan2D 
           building={bSelected} 
           floor={selectedFloor} 
-          destRoom={selected === 'H' ? '301' : null} 
+          destRoom={selected === 'H' ? '301' : (selected === 'G' ? 'Pesas' : null)} 
           activeFriends={activeFriends}
           onClose={() => setShow2D(false)} 
         />
