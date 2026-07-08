@@ -666,10 +666,10 @@ interface BuildingPanelProps {
 function BuildingPanel({ building, onClose, onNavigate, onViewFloors, showInterior, onCloseInterior, onOpen2D }: BuildingPanelProps) {
   return (
     <div
-      className="absolute bottom-4 left-4 right-4 z-10 pointer-events-auto"
+      className="absolute bottom-4 left-4 right-4 z-10 pointer-events-none"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="mx-auto max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-100 animate-slide-up overflow-hidden">
+      <div className="mx-auto max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-100 animate-slide-up overflow-hidden pointer-events-auto">
         {/* Grab handle */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-10 h-1.5 rounded-full bg-slate-200" />
@@ -1159,7 +1159,7 @@ export default function CampusMap3D() {
       </Canvas>
 
       {/* Floating Layer Controls (Top Right) */}
-      <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 pointer-events-auto">
+      <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
         <button
           onClick={() => setLayers(prev => ({ ...prev, friends: !prev.friends }))}
           className={`w-11 h-11 rounded-xl shadow-md border border-slate-200/50 flex items-center justify-center text-lg transition-all ${layers.friends ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
@@ -1184,7 +1184,7 @@ export default function CampusMap3D() {
       </div>
 
       {/* Floating Simulation / GPS status Controls (Top Left) */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 pointer-events-auto max-w-xs">
+      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 pointer-events-auto max-w-xs" onClick={(e) => e.stopPropagation()}>
         <button
           onClick={handleToggleSimulation}
           className={`h-11 px-4 rounded-xl shadow-md border border-slate-200/50 flex items-center gap-2 text-xs font-semibold transition-all ${simulatedLoc ? 'bg-amber-500 text-white border-amber-600' : 'bg-white text-slate-700 hover:bg-slate-50'}`}
@@ -1208,7 +1208,7 @@ export default function CampusMap3D() {
 
       {/* Navigation ETA Indicator (Bottom Center / Left) */}
       {route && eta !== null && (
-        <div className="absolute bottom-4 left-4 z-10 pointer-events-auto bg-white/95 rounded-2xl shadow-xl border border-slate-100 p-4 max-w-xs animate-slide-up flex flex-col gap-1.5">
+        <div className="absolute bottom-4 left-4 z-10 pointer-events-auto bg-white/95 rounded-2xl shadow-xl border border-slate-100 p-4 max-w-xs animate-slide-up flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
             <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Ruta en curso</span>
@@ -1228,7 +1228,7 @@ export default function CampusMap3D() {
 
       {/* Elevator Floor Plan Switcher (Shown when inside interior view) */}
       {selected && showInterior && bSelected && bSelected.floors && (
-        <div className="absolute right-4 bottom-4 z-10 pointer-events-auto bg-white rounded-2xl shadow-xl border border-slate-100 p-2 flex flex-col gap-1.5 animate-slide-up">
+        <div className="absolute right-4 bottom-4 z-10 pointer-events-auto bg-white rounded-2xl shadow-xl border border-slate-100 p-2 flex flex-col gap-1.5 animate-slide-up" onClick={(e) => e.stopPropagation()}>
           {Array.from({ length: bSelected.floors || 0 }).map((_, idx) => {
             const fl = (bSelected.floors || 0) - idx;
             const active = fl === selectedFloor;
