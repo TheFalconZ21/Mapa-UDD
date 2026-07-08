@@ -2,14 +2,27 @@ import type { EventCategory, ActivityCategory, UserStatus } from '@/types/databa
 
 // ── Campus Buildings ─────────────────────────────────────────────────────────
 export const BUILDINGS = {
-  rect: { id: 'rect', name: 'Rectoría', short: 'Rectoría' },
-  med:  { id: 'med',  name: 'Facultad de Medicina', short: 'Medicina' },
-  cap:  { id: 'cap',  name: 'Capilla San Carlos', short: 'Capilla' },
-  bib:  { id: 'bib',  name: 'Biblioteca', short: 'Biblioteca' },
-  cas:  { id: 'cas',  name: 'Casino Central', short: 'Casino' },
-  dis:  { id: 'dis',  name: 'Edificio Diseño', short: 'Diseño' },
-  gym:  { id: 'gym',  name: 'Gimnasio UDD', short: 'Gimnasio' },
-  acc:  { id: 'acc',  name: 'Acceso Principal', short: 'Acceso' },
+  A: { id: 'A', name: 'Edificio A', short: 'Edificio A', cat: 'fac' },
+  B: { id: 'B', name: 'Edificio B', short: 'Edificio B', cat: 'fac' },
+  C: { id: 'C', name: 'Edificio C', short: 'Edificio C', cat: 'chapel' },
+  D: { id: 'D', name: 'Edificio D (Rectoría)', short: 'Rectoría', cat: 'admin' },
+  E: { id: 'E', name: 'Edificio E', short: 'Edificio E', cat: 'fac' },
+  J: { id: 'J', name: 'Edificio J (Postgrados)', short: 'Edificio J', cat: 'admin' },
+  G: { id: 'G', name: 'Edificio G (Gimnasio)', short: 'Gimnasio', cat: 'sport' },
+  H: { id: 'H', name: 'Edificio H (Diseño)', short: 'Diseño', cat: 'fac' },
+  O1: { id: 'O1', name: 'Edificio O1', short: 'Edificio O1', cat: 'fac' },
+  O2: { id: 'O2', name: 'Edificio O2', short: 'Edificio O2', cat: 'fac' },
+  P: { id: 'P', name: 'Edificio P', short: 'Edificio P', cat: 'fac' },
+  Q: { id: 'Q', name: 'Edificio Q', short: 'Edificio Q', cat: 'fac' },
+  R: { id: 'R', name: 'Edificio R (Biblioteca)', short: 'Biblioteca', cat: 'library' },
+  W: { id: 'W', name: 'Edificio W', short: 'Edificio W', cat: 'fac' },
+  V: { id: 'V', name: 'Edificio V', short: 'Edificio V', cat: 'fac' },
+  X: { id: 'X', name: 'Edificio X', short: 'Edificio X', cat: 'fac' },
+  I: { id: 'I', name: 'Edificio I (Medicina)', short: 'Medicina', cat: 'fac' },
+  S: { id: 'S', name: 'Edificio S', short: 'Edificio S', cat: 'fac' },
+  Y: { id: 'Y', name: 'Edificio Y', short: 'Edificio Y', cat: 'fac' },
+  K3: { id: 'K3', name: 'Edificio K3', short: 'Edificio K3', cat: 'fac' },
+  K1: { id: 'K1', name: 'Edificio K1', short: 'Edificio K1', cat: 'fac' },
 } as const;
 
 export type BuildingId = keyof typeof BUILDINGS;

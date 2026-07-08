@@ -106,7 +106,7 @@ export default function RamoPage() {
             {/* Tab bar */}
             <div className="flex gap-0 mt-4 -mx-4 sm:-mx-6 px-4 sm:px-6 border-t border-slate-100 overflow-x-auto scrollbar-none">
               {([
-                { key: 'profesores', label: 'Profesores', icon: Trophy },
+                { key: 'profesores', label: 'Profesores', icon: Trophy, badge: undefined },
                 { key: 'consejos', label: `Consejos`, badge: ramo.tipCount, icon: MessageSquare },
                 { key: 'material', label: `Material`, badge: ramo.materialCount, icon: BookOpen },
               ] as const).map(({ key, label, badge, icon: Icon }) => (

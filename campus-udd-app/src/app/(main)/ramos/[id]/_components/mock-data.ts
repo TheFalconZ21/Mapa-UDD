@@ -39,6 +39,7 @@ export type StudyMaterial = {
   examSemester?: string;
   examYear?: number;
   author?: string;
+  edition?: string;
   voteCount: number;
   downloadCount: number;
   isAnonymous: boolean;

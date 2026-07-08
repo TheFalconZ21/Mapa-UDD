@@ -341,12 +341,92 @@ export const BUILDINGS: BuildingDef[] = [
 ];
 
 export const TERRACES = [
-  // For the new layout, we'll use a single flat green terrace as the campus base
   { id: 'base', z: -1, top: PAL.grassMid, corners: [[-30, -18], [30, -18], [30, 15], [-30, 15]] }
 ];
 
-export const PATHS = [];
-export const PARKING = [];
-export const FRIENDS = [];
-export const EVENTS = [];
-export const DIS_FLOORS = {};
+export const PATHS = [
+  { z: 0, line: [[-22, 8], [-15, 8], [-9, 8], [-3, 8], [0, 8], [3, 8], [9, 8], [11.5, 8], [16, 8], [24, 8]] },
+  { z: 0, line: [[-27.9, -3], [-18.2, -3], [-10.5, -3], [0.5, -3], [8.5, -3], [13, -3], [19.5, -3], [24, -3]] },
+  { z: 0, line: [[-18.2, 8], [-18.2, 0.5], [-18.2, -3]] },
+  { z: 0, line: [[-9.2, 8], [-9.2, 0.5], [-9.2, -3], [-9.2, -14.3]] },
+  { z: 0, line: [[0.5, 8], [0.5, 3], [0.5, -3], [0.5, -6.8]] },
+  { z: 0, line: [[8.5, 8], [8.5, 3], [8.5, -3], [8.5, -6.9]] },
+  { z: 0, line: [[19.5, 8], [19.5, 3], [19.5, -3], [19.5, -6.9]] }
+];
+
+export const PARKING = [
+  { id: 'p1', name: 'Estacionamiento P1', gx: 2, gy: -15, w: 5, d: 5, z: 0, total: 120, free: 14, trend: 'subiendo' },
+  { id: 'p2', name: 'Estacionamiento P2', gx: -20, gy: -15, w: 4, d: 4, z: 0, total: 60, free: 3, trend: 'lleno' }
+];
+
+export const FRIENDS = [
+  { id: 'f1', name: 'Benja', at: 'R', color: '#E0533D', initials: 'B' },
+  { id: 'f2', name: 'Caro', at: 'H', color: '#7A4FD6', initials: 'C' },
+  { id: 'f3', name: 'Tomás', at: 'A', color: '#1F9D72', initials: 'T' }
+];
+
+export const EVENTS = [
+  { id: 'e1', kind: 'Torneo LoL', at: 'R', emoji: '🎮', when: 'Ahora', host: 'CAA Ingeniería' },
+  { id: 'e2', kind: 'Venta de completos', at: 'A', emoji: '🌭', when: '12:30', host: 'Mechones Diseño' },
+  { id: 'e3', kind: 'Grupo de estudio', at: 'H', emoji: '📚', when: '15:00', host: 'Cálculo I' }
+];
+
+export interface RoomDef {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  type: 'room' | 'hall' | 'wc' | 'stair' | 'lift' | 'void';
+  name?: string;
+  dest?: boolean;
+  entry?: boolean;
+}
+
+export interface FloorDef {
+  label: string;
+  rooms: RoomDef[];
+}
+
+export const DIS_FLOORS: Record<number, FloorDef> = {
+  4: { label: 'P4', rooms: [
+    { x: 24,  y: 24, w: 130, h: 92,  label: '401', type: 'room', name: 'Lab Computación' },
+    { x: 160, y: 24, w: 152, h: 92,  label: '402', type: 'room', name: 'Oficina Decanato' },
+    { x: 24,  y: 200, w: 120, h: 120, label: '403', type: 'room', name: 'Taller Animación' },
+    { x: 150, y: 200, w: 162, h: 120, label: 'Terraza P4', type: 'room', name: 'Terraza Diseño' },
+    { x: 24,  y: 122, w: 288, h: 72,  label: '', type: 'hall' },
+    { x: 150, y: 130, w: 40,  h: 56,  label: 'WC', type: 'wc' },
+    { x: 196, y: 130, w: 36,  h: 56,  label: '', type: 'stair' },
+    { x: 238, y: 130, w: 36,  h: 56,  label: '', type: 'lift' }
+  ]},
+  3: { label: 'P3', rooms: [
+    { x: 24,  y: 24, w: 120, h: 92,  label: '301', type: 'room', name: 'Taller Diseño I', dest: true },
+    { x: 150, y: 24, w: 84,  h: 92,  label: '302', type: 'room' },
+    { x: 240, y: 24, w: 72,  h: 92,  label: '303', type: 'room' },
+    { x: 24,  y: 200, w: 96,  h: 120, label: 'Lab Maqueta', type: 'room' },
+    { x: 126, y: 200, w: 90,  h: 120, label: '305', type: 'room' },
+    { x: 222, y: 200, w: 90,  h: 120, label: '306', type: 'room' },
+    { x: 24,  y: 122, w: 288, h: 72,  label: '', type: 'hall' },
+    { x: 150, y: 130, w: 40,  h: 56,  label: 'WC', type: 'wc' },
+    { x: 196, y: 130, w: 36,  h: 56,  label: '', type: 'stair' },
+    { x: 238, y: 130, w: 36,  h: 56,  label: '', type: 'lift' }
+  ]},
+  2: { label: 'P2', rooms: [
+    { x: 24,  y: 24, w: 140, h: 96,  label: '201', type: 'room', name: 'Sala Crítica' },
+    { x: 170, y: 24, w: 142, h: 96,  label: '202', type: 'room' },
+    { x: 24,  y: 200, w: 130, h: 120, label: 'Taller Madera', type: 'room' },
+    { x: 160, y: 200, w: 152, h: 120, label: 'Taller Metal', type: 'room' },
+    { x: 24,  y: 126, w: 288, h: 68,  label: '', type: 'hall' },
+    { x: 150, y: 132, w: 40,  h: 56,  label: 'WC', type: 'wc' },
+    { x: 196, y: 132, w: 36,  h: 56,  label: '', type: 'stair' },
+    { x: 238, y: 132, w: 36,  h: 56,  label: '', type: 'lift' }
+  ]},
+  1: { label: 'P1', rooms: [
+    { x: 24,  y: 24, w: 120, h: 96,  label: 'Hall', type: 'room', name: 'Hall de Acceso' },
+    { x: 150, y: 24, w: 162, h: 96,  label: 'Cafetería', type: 'room' },
+    { x: 24,  y: 200, w: 288, h: 120, label: 'Auditorio A1', type: 'room' },
+    { x: 24,  y: 126, w: 288, h: 68,  label: '', type: 'hall', entry: true },
+    { x: 196, y: 132, w: 36,  h: 56,  label: '', type: 'stair' },
+    { x: 238, y: 132, w: 36,  h: 56,  label: '', type: 'lift' }
+  ]}
+};
