@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Html, PerspectiveCamera, OrthographicCamera } from '@react-three/drei';
-import { BUILDINGS, TERRACES, PATHS, PARKING, FRIENDS, EVENTS, PAL, BuildingDef } from '@/lib/map-data';
+import { OrbitControls, Html } from '@react-three/drei';
+import { BUILDINGS, TERRACES, PAL } from '@/lib/map-data';
 
 // ── Grid Constants ───────────────────────────────────────────────────────────
 const UNIT = 2.2;
@@ -49,114 +49,25 @@ function Terrace3D({ t }: { t: any }) {
   );
 }
 
-// ── Interior 2D Floor Plan Component ─────────────────────────────────────────
-function Interior3D({ b }: { b: any }) {
-  const g = useRef<THREE.Group>(null);
-  const p = useRef(0);
-  const smooth = (a: number, dt: number) => 1 - Math.pow(a, dt);
-
-  useFrame((_, dt) => {
-    p.current += (1 - p.current) * smooth(0.001, dt);
-    if (!g.current) return;
-    g.current.traverse((o: any) => {
-      if (o.material && o.userData.fade) {
-        o.material.transparent = true;
-        o.material.opacity = (o.userData.base ?? 1) * p.current;
-      }
-    });
-  });
-
-  const w = b.size[0];
-  const d = b.size[2];
-  
-  const wall = (key: string, pos: [number, number, number], size: [number, number, number], color = '#cbd5e1') => (
-    <mesh key={key} position={pos} userData={{ fade: true, base: 1 }}>
-      <boxGeometry args={size} />
-      <meshStandardMaterial color={color} roughness={0.9} transparent opacity={0} />
-    </mesh>
-  );
-
-  const quad = [
-    [-w / 4, -d / 4],
-    [w / 4, -d / 4],
-    [-w / 4, d / 4],
-    [w / 4, d / 4]
-  ] as [number, number][];
-
-  // Map floor room labels
-  const labels = b.id === 'dis' ? ['301', '302', 'Taller', 'Lab'] : ['Sala A', 'Sala B', 'Oficina', 'Hall'];
-  const destIdx = b.dest ? 0 : -1;
-
-  return (
-    <group ref={g} position={[0, 0, 0]}>
-      {/* Floor slab base */}
-      <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0]} userData={{ fade: true, base: 1 }}>
-        <planeGeometry args={[w * 0.94, d * 0.94]} />
-        <meshStandardMaterial color="#f8fafc" roughness={1} transparent opacity={0} />
-      </mesh>
-
-      {/* Destination room highlight */}
-      {destIdx >= 0 && (
-        <mesh position={[quad[destIdx][0], 0.05, quad[destIdx][1]]} rotation={[-Math.PI / 2, 0, 0]} userData={{ fade: true, base: 0.9 }}>
-          <planeGeometry args={[w * 0.44, d * 0.44]} />
-          <meshStandardMaterial color="#1F6FD6" emissive="#1F6FD6" emissiveIntensity={0.2} roughness={1} transparent opacity={0} />
-        </mesh>
-      )}
-
-      {/* Interior walls */}
-      {wall('w-mid-v', [0, 0.24, 0], [0.06, 0.4, d * 0.92])}
-      {wall('w-mid-h1', [-w / 4, 0.24, 0], [w * 0.46, 0.4, 0.06])}
-      {wall('w-mid-h2', [w / 4, 0.24, 0], [w * 0.46, 0.4, 0.06])}
-
-      {/* Labels */}
-      {quad.map((q, i) => {
-        const isDest = i === destIdx;
-        return (
-          <Html key={i} position={[q[0], 0.12, q[1]]} center className="pointer-events-none select-none">
-            <div className={`px-1.5 py-0.5 rounded text-[8px] font-black border tracking-wide leading-none transition-opacity duration-300 ${
-              isDest 
-                ? 'bg-blue-600 border-blue-700 text-white shadow-sm' 
-                : 'bg-white/80 border-slate-200 text-slate-500 shadow-sm'
-            }`}>
-              {labels[i]}
-            </div>
-          </Html>
-        );
-      })}
-    </group>
-  );
-}
-
 // ── Building Component ──────────────────────────────────────────────────────
 function Building3D({ b, selected, anySelected, onSelect }: any) {
   const shell = useRef<THREE.Mesh>(null);
   const roof = useRef<THREE.Mesh>(null);
   
-  const prog = useRef(0);
   const dim = useRef(1);
   const [hover, setHover] = useState(false);
 
   const smooth = (a: number, dt: number) => 1 - Math.pow(a, dt);
 
   useFrame((_, dt) => {
-    const tp = selected ? 1 : 0;
-    prog.current += (tp - prog.current) * smooth(0.0016, dt);
-    const p = prog.current;
-
-    if (roof.current && !Array.isArray(roof.current.material)) {
-      roof.current.position.y = b.height + 0.07 + p * 2.4;
-      const opacity = Math.max(0, 1 - p * 1.5);
-      roof.current.material.opacity = opacity;
-      roof.current.visible = opacity > 0.02;
-    }
-
-    const targetDim = selected ? 0.16 : (anySelected ? 0.42 : 1.0);
-    dim.current += (targetDim - dim.current) * smooth(0.0016, dt);
-
+    // Just a simple pop-up animation for now
+    const targetDim = selected ? 1.0 : (anySelected ? 0.38 : 1.0);
+    dim.current += (targetDim - dim.current) * smooth(0.001, dt);
+    
     if (shell.current && !Array.isArray(shell.current.material)) {
       shell.current.material.opacity = dim.current;
-      shell.current.material.depthWrite = dim.current > 0.92;
-      (shell.current.material as THREE.MeshStandardMaterial).emissiveIntensity = hover && !anySelected ? 0.18 : 0;
+      shell.current.material.depthWrite = dim.current > 0.8;
+      (shell.current.material as THREE.MeshStandardMaterial).emissiveIntensity = hover && !anySelected ? 0.2 : 0;
       shell.current.visible = dim.current > 0.01;
     }
   });
@@ -181,13 +92,10 @@ function Building3D({ b, selected, anySelected, onSelect }: any) {
       </mesh>
 
       {/* Roof Cap */}
-      <mesh ref={roof} position={[0, b.height + 0.07, 0]} castShadow>
+      <mesh ref={roof} position={[0, b.height / 2 + 0.08, 0]} castShadow>
         <boxGeometry args={[b.size[0] + 0.15, 0.14, b.size[2] + 0.15]} />
         <meshStandardMaterial color={b.roof} transparent opacity={1} roughness={0.8} />
       </mesh>
-
-      {/* Interior 2D floor plan */}
-      {selected && <Interior3D b={b} />}
 
       {/* Floating title */}
       <Html position={[0, b.height + 0.6, 0]} center className="pointer-events-none select-none">
@@ -202,123 +110,128 @@ function Building3D({ b, selected, anySelected, onSelect }: any) {
 
 // ── Camera Rig ──────────────────────────────────────────────────────────────
 function CameraRig3D({ selected, bSelected }: any) {
-  const persp = useRef<any>(null);
-  const ortho = useRef<any>(null);
-  const orbit = useRef<any>(null);
-  const { size } = useThree();
-  const [planActive, setPlanActive] = useState(false);
-
-  const HOME_POS = useMemo(() => new THREE.Vector3(18, 25, 35), []);
-  const HOME_TARGET = useMemo(() => new THREE.Vector3(0, 1.5, 3.5), []);
-
-  const S = useRef({
-    p: 0,                                  // 0 orbit → 1 plan
-    start: HOME_POS.clone(),               // fly start (captured from live orbit)
-    startT: HOME_TARGET.clone(),
-    focus: new THREE.Vector3(0, 1.5, 3.5),
-    prev: null as string | null,
-    plan: false,
+  const orbitRef = useRef<any>(null);
+  const { camera } = useThree();
+  const savedPose = useRef({
+    position: new THREE.Vector3(18, 25, 35),
+    target: new THREE.Vector3(0, 1.5, 3.5)
   });
+  const isTransitioning = useRef(false);
 
-  const tmpPos = useMemo(() => new THREE.Vector3(), []);
-  const tmpTar = useMemo(() => new THREE.Vector3(), []);
-  const tmpFocus = useMemo(() => new THREE.Vector3(), []);
-
-  const smooth = (a: number, dt: number) => 1 - Math.pow(a, dt);
-  const easeInOut = (t: number) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-
-  useFrame((_, dt) => {
-    const s = S.current;
-    const c = persp.current;
-    const o = ortho.current;
-    const ctl = orbit.current;
-    if (!c || !o) return;
-
-    // rising / falling edge on selection
-    if (selected !== s.prev) {
-      if (selected && bSelected) {                       // entering a building
-        s.start.copy(c.position);           // start the fly from wherever orbit left us
-        if (ctl) s.startT.copy(ctl.target);
-        s.focus.set(bSelected.x, bSelected.baseY, bSelected.z);
+  useEffect(() => {
+    if (selected && bSelected) {
+      if (orbitRef.current) {
+        savedPose.current.position.copy(camera.position);
+        savedPose.current.target.copy(orbitRef.current.target);
       }
-      s.prev = selected;
     }
+  }, [selected, bSelected, camera.position]);
+
+  useFrame(() => {
+    const orbit = orbitRef.current;
+    if (!orbit) return;
 
     if (selected && bSelected) {
-      tmpFocus.set(bSelected.x, bSelected.baseY, bSelected.z);
-      s.focus.lerp(tmpFocus, smooth(0.05, dt));
-    }
-
-    // progress toward plan / orbit
-    const targetP = selected ? 1 : 0;
-    s.p += (targetP - s.p) * smooth(0.12, dt);
-    if (Math.abs(targetP - s.p) < 0.0015) s.p = targetP;
-    const e = easeInOut(s.p);
-
-    // overhead pose for the focused building
-    const topPos = tmpPos.set(s.focus.x, s.focus.y + 13, s.focus.z + 0.01);
-    const topTar = s.focus;
-
-    const orbiting = !selected && s.p < 0.004;
-    if (ctl) ctl.enabled = orbiting;
-
-    if (orbiting) {
-      // let OrbitControls drive; remember pose for the next fly
-      s.start.copy(c.position);
-      if (ctl) s.startT.copy(ctl.target);
+      const targetLook = new THREE.Vector3(bSelected.x, bSelected.baseY + bSelected.height / 3, bSelected.z);
+      orbit.target.lerp(targetLook, 0.05);
+      isTransitioning.current = true;
     } else {
-      // drive the perspective camera along the fly
-      c.position.copy(tmpTar.copy(s.start).lerp(topPos, e));
-      if (ctl) {
-        ctl.target.copy(tmpTar.copy(s.startT).lerp(topTar, e));
+      orbit.target.x = THREE.MathUtils.clamp(orbit.target.x, -80, 60);
+      orbit.target.y = THREE.MathUtils.clamp(orbit.target.y, 0, 15);
+      orbit.target.z = THREE.MathUtils.clamp(orbit.target.z, -60, 50);
+
+      if (isTransitioning.current) {
+        camera.position.lerp(savedPose.current.position, 0.08);
+        orbit.target.lerp(savedPose.current.target, 0.08);
+        if (camera.position.distanceTo(savedPose.current.position) < 0.1) {
+          isTransitioning.current = false;
+        }
       }
-      c.lookAt(tmpTar.copy(s.startT).lerp(topTar, e));
     }
-
-    // keep ortho parked overhead, framed to the building
-    o.position.copy(topPos);
-    o.up.set(0, 0, -1);
-    o.lookAt(topTar);
-    const minDim = Math.min(size.width, size.height);
-    const b = bSelected;
-    const fs = b ? Math.max(b.size[0], b.size[2]) : 4;
-    o.zoom = minDim / (fs * 1.95);
-    o.updateProjectionMatrix();
-
-    const planNow = s.p > 0.985;
-    if (planNow !== s.plan) { 
-      s.plan = planNow; 
-      setPlanActive(planNow); 
-    }
+    orbit.update();
   });
 
   return (
-    <>
-      <PerspectiveCamera ref={persp} makeDefault={!planActive} fov={38} near={0.1} far={500} position={[18, 25, 35]} />
-      <OrthographicCamera ref={ortho} makeDefault={planActive} near={-60} far={500} />
-      <OrbitControls 
-        ref={orbit} 
-        enableDamping 
-        dampingFactor={0.08}
-        minDistance={6} 
-        maxDistance={80}
-        maxPolarAngle={1.35} 
-        enablePan={true}
-        target={[0, 1.5, 3.5]}
-      />
-    </>
+    <OrbitControls 
+      ref={orbitRef} 
+      enableDamping 
+      dampingFactor={0.08}
+      minDistance={6} 
+      maxDistance={80}
+      maxPolarAngle={1.35} 
+      enablePan={true}
+      target={[0, 1.5, 3.5]}
+    />
+  );
+}
+
+// ── Building Info Panel ─────────────────────────────────────────────────────
+function BuildingPanel({ building, onClose }: { building: any; onClose: () => void }) {
+  return (
+    <div
+      className="absolute bottom-0 left-0 right-0 z-10 pointer-events-auto"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="mx-auto max-w-lg bg-white rounded-t-2xl shadow-2xl border border-slate-100 animate-slide-up">
+        {/* Grab handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1.5 rounded-full bg-slate-200" />
+        </div>
+
+        <div className="px-5 pb-6 pt-2">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 leading-tight">{building.name}</h2>
+              <p className="text-sm text-slate-500 mt-0.5">
+                <span className="text-emerald-600 font-semibold">Abierto</span>
+                {building.floors ? ` · ${building.floors} ${building.floors > 1 ? 'pisos' : 'piso'}` : ''}
+                {' · '}4 min a pie
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-sm font-medium transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 mb-4">
+            <button className="flex-1 h-11 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-colors">
+              Cómo llegar
+            </button>
+            <button className="h-11 px-5 rounded-xl border border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-colors">
+              Ver pisos
+            </button>
+          </div>
+
+          {/* Building meta */}
+          <div className="bg-slate-50 rounded-xl p-3 text-sm text-slate-600">
+            <div className="flex gap-4">
+              <span>📍 Campus UDD</span>
+              {building.floors && <span>🏢 {building.floors} {building.floors > 1 ? 'pisos' : 'piso'}</span>}
+              <span>🏷️ {building.cat === 'fac' ? 'Facultad' : building.cat}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
 // ── Main Map Component ──────────────────────────────────────────────────────
 export default function CampusMap3D() {
   const [selected, setSelected] = useState<string | null>(null);
+  // Tracks whether the last click hit a building (prevents parent div from deselecting)
+  const clickedBuilding = useRef(false);
 
   const { BUILDINGS_3D, BY_ID } = useMemo(() => {
     const b3d = BUILDINGS.map(b => {
       const height = b.h * 0.42;
       const [x, y, z] = get3DPos(b.gx, b.gy, b.z);
-      
+
       const visualX = x + (b.w * UNIT) / 2;
       const visualZ = z + (b.d * UNIT) / 2;
 
@@ -333,7 +246,7 @@ export default function CampusMap3D() {
         roof: PAL.mats[b.mat]?.[1] || '#ccc'
       };
     });
-    
+
     return {
       BUILDINGS_3D: b3d,
       BY_ID: Object.fromEntries(b3d.map(b => [b.id, b]))
@@ -342,16 +255,25 @@ export default function CampusMap3D() {
 
   const bSelected = selected ? BY_ID[selected] : null;
 
+  const handleBuildingSelect = (id: string) => {
+    clickedBuilding.current = true;
+    setSelected(id);
+  };
+
+  const handleCanvasClick = () => {
+    if (clickedBuilding.current) {
+      clickedBuilding.current = false;
+      return;
+    }
+    setSelected(null);
+  };
+
   return (
-    <div 
-      style={{ width: '100%', height: '100%', position: 'relative' }} 
+    <div
+      style={{ width: '100%', height: '100%', position: 'relative' }}
+      onClick={handleCanvasClick}
     >
-      <Canvas 
-        shadows 
-        dpr={[1, 1.5]} 
-        camera={{ position: [18, 25, 35], fov: 38, near: 0.1, far: 500 }}
-        onPointerMissed={() => setSelected(null)}
-      >
+      <Canvas shadows dpr={[1, 1.5]} camera={{ position: [18, 25, 35], fov: 38, near: 0.1, far: 500 }}>
         <color attach="background" args={['#d4dde0']} />
         <fog attach="fog" args={['#d4dde0', 55, 140]} />
 
@@ -378,17 +300,21 @@ export default function CampusMap3D() {
         ))}
 
         {BUILDINGS_3D.map(b => (
-          <Building3D 
-            key={b.id} 
+          <Building3D
+            key={b.id}
             b={b}
             selected={selected === b.id}
             anySelected={!!selected}
-            onSelect={setSelected}
+            onSelect={handleBuildingSelect}
           />
         ))}
 
         <CameraRig3D selected={selected} bSelected={bSelected} />
       </Canvas>
+
+      {bSelected && (
+        <BuildingPanel building={bSelected} onClose={() => setSelected(null)} />
+      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Map, Users, Calendar, Bell } from 'lucide-react';
+import { Map, Calendar, Bell, GraduationCap, BookOpen } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -11,10 +11,11 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navItems = [
-  { href: '/mapa', icon: Map, label: 'Mapa' },
-  { href: '/nosotros', icon: Users, label: 'Nosotros' },
-  { href: '/eventos', icon: Calendar, label: 'Eventos' },
-  { href: '/notificaciones', icon: Bell, label: 'Notif.' },
+  { href: '/mapa',           icon: Map,          label: 'Mapa'     },
+  { href: '/ramos',          icon: BookOpen,      label: 'Ramos'    },
+  { href: '/eventos',        icon: Calendar,      label: 'Eventos'  },
+  { href: '/docentes',       icon: GraduationCap, label: 'Docentes' },
+  { href: '/notificaciones', icon: Bell,          label: 'Notif.'   },
 ];
 
 export function BottomNav() {

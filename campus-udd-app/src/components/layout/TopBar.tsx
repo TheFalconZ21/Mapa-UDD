@@ -35,8 +35,9 @@ export function TopBar() {
         {/* Navegación Desktop */}
         <nav className="hidden md:flex items-center gap-6">
           <Link href="/mapa" className="text-sm font-medium text-slate-600 hover:text-slate-900">Mapa</Link>
-          <Link href="/nosotros" className="text-sm font-medium text-slate-600 hover:text-slate-900">Nosotros</Link>
+          <Link href="/ramos" className="text-sm font-medium text-slate-600 hover:text-slate-900">Ramos</Link>
           <Link href="/eventos" className="text-sm font-medium text-slate-600 hover:text-slate-900">Eventos</Link>
+          <Link href="/docentes" className="text-sm font-medium text-slate-600 hover:text-slate-900">Docentes</Link>
           <Link href="/notificaciones" className="text-sm font-medium text-slate-600 hover:text-slate-900">Notificaciones</Link>
         </nav>
 
